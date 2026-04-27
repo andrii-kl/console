@@ -38,8 +38,12 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     cd cmd/api && CGO_ENABLED=0 GOOS=linux go build -o /console-api .
 
 # --- Runtime ---
-FROM alpine:3.21
-RUN apk --no-cache add ca-certificates wget
+# Use debian-slim instead of alpine to avoid sporadic dl-cdn.alpinelinux.org
+# outages on remote build hosts; the Go binary is static (CGO_ENABLED=0).
+FROM debian:bookworm-slim
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates wget \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=backend /console-api ./console-api
 EXPOSE 8080
