@@ -21,9 +21,12 @@ ENV REACT_APP_BUILD_TIMESTAMP=0
 RUN bun run build
 
 # --- Backend build ---
-FROM golang:1.26-alpine AS backend
+# Use debian-based golang to avoid sporadic dl-cdn.alpinelinux.org outages.
+FROM golang:1.26-bookworm AS backend
 WORKDIR /app
-RUN apk add --no-cache git
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 ENV GOTOOLCHAIN=auto
 
 COPY backend/go.mod backend/go.sum ./
