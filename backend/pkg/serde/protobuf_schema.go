@@ -23,6 +23,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/dynamicpb"
 
+	protosvc "github.com/redpanda-data/console/backend/pkg/proto"
 	"github.com/redpanda-data/console/backend/pkg/schema"
 )
 
@@ -110,7 +111,7 @@ func (d ProtobufSchemaSerde) DeserializePayload(ctx context.Context, record *kgo
 		// Resolver for looking up referenced types
 		Resolver: compiledProtoFiles.AsResolver(),
 	}
-	jsonBytes, err := o.Marshal(protoMessage)
+	jsonBytes, err := protosvc.MarshalSolanaJSON(o, protoMessage)
 	if err != nil {
 		return nil, fmt.Errorf("unable to marshal protobuf message as JSON: %v", err)
 	}

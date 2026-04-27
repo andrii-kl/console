@@ -19,6 +19,8 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/dynamicpb"
+
+	protosvc "github.com/redpanda-data/console/backend/pkg/proto"
 )
 
 var _ Serde = (*ProtobufBSRSerde)(nil)
@@ -95,7 +97,7 @@ func (d ProtobufBSRSerde) DeserializePayload(ctx context.Context, record *kgo.Re
 		EmitDefaultValues: true,
 		Resolver:          files.AsResolver(), // linker.Files.AsResolver() returns protojson.Resolver
 	}
-	jsonBytes, err := o.Marshal(protoMessage)
+	jsonBytes, err := protosvc.MarshalSolanaJSON(o, protoMessage)
 	if err != nil {
 		return &RecordPayload{}, fmt.Errorf("unable to marshal protobuf message as JSON: %w", err)
 	}

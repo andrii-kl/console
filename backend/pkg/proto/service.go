@@ -170,11 +170,12 @@ func (s *Service) DeserializeProtobufMessageToJSON(payload []byte, md protorefle
 		return nil, fmt.Errorf("failed to unmarshal payload into protobuf message: %w", err)
 	}
 
-	// Use protojson with custom resolver
-	jsonBytes, err := protojson.MarshalOptions{
+	// Use protojson with custom resolver and Solana base58 transform for
+	// 32/64-byte bytes fields (pubkeys and Ed25519 signatures).
+	jsonBytes, err := MarshalSolanaJSON(protojson.MarshalOptions{
 		EmitDefaultValues: true,
 		Resolver:          &anyResolver{registry: s.registry},
-	}.Marshal(msg)
+	}, msg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal protobuf message to JSON: %w", err)
 	}
